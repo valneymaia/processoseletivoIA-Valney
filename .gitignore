@@ -7,8 +7,6 @@ projeto_venv/
 venv/
 env/
 
-model.h5
-model.tflite
 inference_sample.png
 .vscode/
 .DS_Store
