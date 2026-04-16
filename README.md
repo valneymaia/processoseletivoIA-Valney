@@ -112,7 +112,7 @@ Este repositório inclui um **Dev Container** para facilitar a criação de um a
 
 **Passos**
 1. Abra o repositório no VS Code  
-2. Selecione **“Reopen in Container”**  
+2. Selecione **"Reopen in Container"**  
 3. Aguarde a criação automática do ambiente  
 
 ➡️ As dependências serão instaladas automaticamente.
@@ -271,9 +271,6 @@ Antes do envio, execute os scripts e confirme a geração dos arquivos:
 - `model.h5`
 - `model.tflite`
 
-Como diferencial, também incluí o script `test_inference.py`, que executa uma inferência com o modelo TFLite em uma amostra aleatória do MNIST e salva a imagem usada no teste.
-
-
 
 ### ⬆️ Envio do Código
 
@@ -315,8 +312,8 @@ Preencha todas as seções de forma clara e objetiva.
 **Exemplo:**
 
 👤 Identificação:
-- **Nome Completo:** [Valney Maia Neto]
-- **Instituição:** [Universidade Federal do Cariri - UFCA]
+- **Nome Completo:** Valney Maia Neto
+- **Instituição:** Universidade Federal do Cariri - UFCA
 
 
 ### 1️⃣ Resumo da Arquitetura do Modelo
@@ -367,11 +364,16 @@ Resultados principais obtidos:
 
 Analisando os resultados, o modelo convergiu rápido e apresentou desempenho alto mesmo com poucas épocas, o que mostra boa adequação da arquitetura ao MNIST. O `Dropout(0.5)` ajudou a reduzir risco de overfitting, principalmente na parte densa da rede, mantendo boa generalização no teste.
 
-### Imagens dos Resultados do site netron.app
-
-![Modelo treinado](assets/model.h5.png)
-
-![Modelo otimizado](assets/model.tflite.png)
+<table>
+  <tr>
+    <td align="center"><b>Modelo treinado</b></td>
+    <td align="center"><b>Modelo otimizado</b></td>
+  </tr>
+  <tr>
+    <td><img src="assets/model.h5.png" alt="Modelo treinado" width="350"/></td>
+    <td><img src="assets/model.tflite.png" alt="Modelo otimizado" width="350"/></td>
+  </tr>
+</table>
 
 ### 5️⃣ Comentários Adicionais (Opcional)
 
@@ -406,4 +408,3 @@ Em caso de dúvidas:
 - Utilize os canais oficiais para contato com os instrutores
 
 Boa sorte no processo seletivo.
-****
