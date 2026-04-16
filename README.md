@@ -367,7 +367,11 @@ Resultados principais obtidos:
 
 Analisando os resultados, o modelo convergiu rápido e apresentou desempenho alto mesmo com poucas épocas, o que mostra boa adequação da arquitetura ao MNIST. O `Dropout(0.5)` ajudou a reduzir risco de overfitting, principalmente na parte densa da rede, mantendo boa generalização no teste.
 
+### Imagens dos Resultados do site netron.app
 
+![Modelo treinado](assets/model.h5.png)
+
+![Modelo otimizado](assets/model.tflite.png)
 
 ### 5️⃣ Comentários Adicionais (Opcional)
 
