@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+projeto_venv/
+venv/
+env/
+
+inference_sample.png
+.vscode/
+.DS_Store
+Thumbs.db

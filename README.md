@@ -20,6 +20,7 @@ Esta atividade tem como objetivo avaliar competências técnicas relacionadas a 
   - ⚖️ [Critérios de Avaliação](#️-critérios-de-avaliação)
 - 📤 [Passo 3 – Instruções de Entrega](#-passo-3-instruções-de-entrega)
   - 📝 [Relatório do Candidato](#-relatório-do-candidato)
+  - ⭐ [Diferencial Implementado](#-diferencial-implementado)
 
 ---
 
@@ -270,6 +271,8 @@ Antes do envio, execute os scripts e confirme a geração dos arquivos:
 - `model.h5`
 - `model.tflite`
 
+Como diferencial, também incluí o script `test_inference.py`, que executa uma inferência com o modelo TFLite em uma amostra aleatória do MNIST e salva a imagem usada no teste.
+
 
 
 ### ⬆️ Envio do Código
@@ -311,43 +314,82 @@ Preencha todas as seções de forma clara e objetiva.
 
 **Exemplo:**
 
-👤 Identificação: **Nome Completo:**
+👤 Identificação:
+- **Nome Completo:** [Valney Maia Neto]
+- **Instituição:** [Universidade Federal do Cariri - UFCA]
 
 
 ### 1️⃣ Resumo da Arquitetura do Modelo
 
-Descreva, em palavras, a arquitetura da **CNN** implementada no arquivo
-`train_model.py`.
+No `train_model.py`, implementei uma CNN simples, mas bem eficiente para o problema do MNIST. A arquitetura ficou assim:
+
+- `Conv2D(32)` + `MaxPooling2D`
+- `Conv2D(64)` + `MaxPooling2D`
+- `Conv2D(128)`
+- `Flatten` + `Dropout(0.5)` + `Dense(128)` + `Dropout(0.5)` + `Dense(10, softmax)`
+
+A lógica foi fazer extração de características em etapas, começando por padrões mais simples e avançando para padrões mais complexos. Mesmo com 3 camadas convolucionais, o modelo continua enxuto, com bom custo-benefício para Edge AI, principalmente por manter o processamento viável em CPU e sem exagerar no número de parâmetros.
 
 
 
 ### 2️⃣ Bibliotecas Utilizadas
 
-Liste as principais bibliotecas utilizadas no projeto, preferencialmente
-com suas versões.
+Principais bibliotecas utilizadas no projeto:
+
+- **TensorFlow/Keras** (`tensorflow>=2.12`) para carregamento do MNIST, criação da CNN, treino, avaliação e conversão para TFLite.
+- **NumPy** (`numpy`) para pré-processamento dos dados (normalização e ajuste do formato das imagens).
+- **os** (biblioteca padrão do Python) para manipulação dos artefatos e cálculo dos tamanhos dos arquivos gerados.
 
 
 
 ### 3️⃣ Técnica de Otimização do Modelo
 
-Explique qual técnica foi utilizada para otimizar o modelo no arquivo
-`optimize_model.py`.
+A técnica aplicada foi **Dynamic Range Quantization** durante a conversão para TensorFlow Lite.
+
+Fluxo realizado no `optimize_model.py`:
+
+- carregamento do modelo treinado (`model.h5`)
+- conversão para `.tflite`
+- aplicação de otimização com `tf.lite.Optimize.DEFAULT`
+
+Escolhi essa técnica porque ela entrega boa compressão com implementação simples, sem aumentar demais a complexidade do pipeline. Para o objetivo de Edge AI, foi uma decisão equilibrada entre redução de tamanho e manutenção de desempenho.
 
 
 
 ### 4️⃣ Resultados Obtidos
 
-Informe o principal resultado obtido após o treinamento do modelo.
+Resultados principais obtidos:
+
+- Acurácia final no teste: **99.30%** (com apenas 5 épocas)
+- Artefato treinado: `model.h5` com **2.81 MB**
+- Artefato otimizado: `model.tflite` com **0.24 MB**
+- Redução de tamanho: **91.43%**
+
+Analisando os resultados, o modelo convergiu rápido e apresentou desempenho alto mesmo com poucas épocas, o que mostra boa adequação da arquitetura ao MNIST. O `Dropout(0.5)` ajudou a reduzir risco de overfitting, principalmente na parte densa da rede, mantendo boa generalização no teste.
 
 
 
 ### 5️⃣ Comentários Adicionais (Opcional)
 
-Utilize este espaço para comentar:
-- Dificuldades encontradas  
-- Decisões técnicas importantes  
-- Limitações do modelo  
-- Aprendizados durante o desafio
+- **Decisões técnicas importantes:** manter 3 blocos convolucionais foi uma escolha consciente para equilibrar capacidade de extração de características e eficiência computacional.
+- **Trade-off tamanho x desempenho:** uma rede mais profunda poderia aumentar custo de inferência e memória. A versão final manteve acurácia alta e ficou com cerca de 245 KB em `.tflite`, o que é adequado para dispositivos com memória limitada.
+- **Organização dos artefatos:** os arquivos `model.h5` (modelo treinado) e `model.tflite` (modelo otimizado) foram gerados de forma organizada na raiz do projeto, facilitando validação automática e reprodução dos testes.
+- **Aprendizado principal:** além de alcançar boa acurácia, foi importante pensar no ciclo completo de Edge AI (treino, salvamento, conversão e otimização) desde o início do desenvolvimento.
+
+
+### ⭐ Diferencial Implementado
+
+Além do fluxo obrigatório de treino e otimização, adicionei um script extra de inferência (`test_inference.py`) para demonstrar o uso prático do modelo TFLite.
+
+Esse script:
+
+- carrega o modelo `model.tflite`
+- seleciona uma imagem aleatória do MNIST
+- realiza a inferência e mostra a classe prevista
+- salva a imagem de teste como `inference_sample.png`
+- abre a imagem automaticamente no Windows para facilitar a visualização
+
+Esse diferencial ajuda a mostrar não só que o modelo foi treinado e otimizado, mas também que ele pode ser usado de forma prática em um fluxo simples de demonstração.
 
 
 ## 🆘 Suporte
