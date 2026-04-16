@@ -364,6 +364,8 @@ Resultados principais obtidos:
 
 Analisando os resultados, o modelo convergiu rápido e apresentou desempenho alto mesmo com poucas épocas, o que mostra boa adequação da arquitetura ao MNIST. O `Dropout(0.5)` ajudou a reduzir risco de overfitting, principalmente na parte densa da rede, mantendo boa generalização no teste.
 
+### Imagens dos Resultados do site netron.app
+
 <table>
   <tr>
     <td align="center"><b>Modelo treinado</b></td>
@@ -374,6 +376,11 @@ Analisando os resultados, o modelo convergiu rápido e apresentou desempenho alt
     <td><img src="assets/model.tflite.png" alt="Modelo otimizado" width="350"/></td>
   </tr>
 </table>
+
+As imagens geradas pelo Netron confirmam a arquitetura implementada: é possível 
+visualizar as três camadas convolucionais, o bloco denso com Dropout e a camada 
+de saída com 10 neurônios (softmax). No modelo `.tflite`, as operações aparecem 
+quantizadas, refletindo a aplicação do Dynamic Range Quantization.
 
 ### 5️⃣ Comentários Adicionais (Opcional)
 
