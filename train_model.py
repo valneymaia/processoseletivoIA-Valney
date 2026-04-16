@@ -2,6 +2,10 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import numpy as np
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_H5_PATH = BASE_DIR / "model.h5"
 
 # Carrega o dataset MNIST
 print("Carregando dataset MNIST...")
@@ -74,5 +78,6 @@ print(f"Acurácia final no teste: {test_accuracy * 100:.2f}%")
 
 # Salva o modelo treinado
 print("\nSalvando modelo treinado como model.h5...")
-model.save("model.h5")
-print("Modelo salvo com sucesso!")
+model.save(MODEL_H5_PATH)
+print(f"Modelo salvo com sucesso em: {MODEL_H5_PATH}")
+print(f"Arquivo existe? {MODEL_H5_PATH.exists()}")
