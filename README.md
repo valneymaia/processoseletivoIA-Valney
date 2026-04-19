@@ -299,72 +299,103 @@ Copie o link do seu repositório e envie conforme orientações do processo sele
 ---
 
 ## 📝 Relatório do Candidato
+# Processo Seletivo – Intensivo Maker | AI
+## Relatório Técnico do Candidato
 
-O arquivo (`README.md`) deve ser utilizado como **relatório final do desafio**.
+---
 
-Preencha todas as seções de forma clara e objetiva.
+## 👤 Identificação
 
-> 💡 Dica: não é necessário um relatório extenso.  
-> O mais importante é demonstrar **clareza nas decisões técnicas**.
+| Campo | Informação |
+|---|---|
+| **Nome Completo** | Valney Maia Neto |
+| **Instituição** | Universidade Federal do Cariri – UFCA |
+| **GitHub** |  https://github.com/valneymaia/processoseletivoIA-Valney.git |
 
+---
 
+## ⚡ Como Reproduzir
 
-**Exemplo:**
+Execute os scripts **nesta ordem** a partir da raiz do repositório:
 
-👤 Identificação:
-- **Nome Completo:** Valney Maia Neto
-- **Instituição:** Universidade Federal do Cariri - UFCA
+```bash
+# 1. Treinamento — gera model.h5
+python train_model.py
 
+# 2. Otimização — gera model.tflite
+python optimize_model.py
 
-### 1️⃣ Resumo da Arquitetura do Modelo
+# 3. Inferência de demonstração (opcional) — gera inference_sample.png
+python test_inference.py
+```
 
-No `train_model.py`, implementei uma CNN simples, mas bem eficiente para o problema do MNIST. A arquitetura ficou assim:
+> **Requisitos:** Python 3.10 ou 3.11. Instale as dependências com `pip install -r requirements.txt`.  
+> **Versões utilizadas:** `tensorflow==2.12.0`, `numpy==1.23.5`
 
-- `Conv2D(32)` + `MaxPooling2D`
-- `Conv2D(64)` + `MaxPooling2D`
-- `Conv2D(128)`
-- `Flatten` + `Dropout(0.5)` + `Dense(128)` + `Dropout(0.5)` + `Dense(10, softmax)`
+---
 
-A lógica foi fazer extração de características em etapas, começando por padrões mais simples e avançando para padrões mais complexos. Mesmo com 3 camadas convolucionais, o modelo continua enxuto, com bom custo-benefício para Edge AI, principalmente por manter o processamento viável em CPU e sem exagerar no número de parâmetros.
+## 1️⃣ Arquitetura do Modelo
 
+O modelo treinado em `train_model.py` é uma **CNN de 3 blocos convolucionais**, projetada para ser eficiente em CPU e viável para Edge AI.
 
+```
+Conv2D(32)  → MaxPooling2D    # padrões simples: bordas e texturas
+Conv2D(64)  → MaxPooling2D    # padrões intermediários: formas e curvas
+Conv2D(128)                   # padrões abstratos: estrutura dos dígitos
+Flatten → Dropout(0.5) → Dense(128) → Dropout(0.5) → Dense(10, softmax)
+```
 
-### 2️⃣ Bibliotecas Utilizadas
+**Decisões de arquitetura:**
 
-Principais bibliotecas utilizadas no projeto:
+- **Progressão de filtros (32 → 64 → 128):** segue a convenção de hierarquia de representação — filtros iniciais capturam bordas simples, enquanto os finais capturam estruturas complexas dos dígitos.
+- **3 blocos convolucionais:** equilíbrio entre capacidade de extração e custo computacional. Mais camadas aumentariam latência e memória, comprometendo a viabilidade para dispositivos embarcados.
+- **Dropout(0.5) duplo:** aplicado antes e depois da camada densa para reduzir overfitting na parte totalmente conectada da rede, mantendo boa generalização no conjunto de teste.
+- **Sem modelos pré-treinados:** compatível com os requisitos do desafio e suficiente para o MNIST.
 
-- **TensorFlow/Keras** (`tensorflow>=2.12`) para carregamento do MNIST, criação da CNN, treino, avaliação e conversão para TFLite.
-- **NumPy** (`numpy`) para pré-processamento dos dados (normalização e ajuste do formato das imagens).
-- **os** (biblioteca padrão do Python) para manipulação dos artefatos e cálculo dos tamanhos dos arquivos gerados.
+---
 
+## 2️⃣ Bibliotecas Utilizadas
 
+| Biblioteca | Versão | Uso |
+|---|---|---|
+| `tensorflow` / `keras` | 2.12.0 | Carregamento do MNIST, construção da CNN, treinamento, avaliação e conversão TFLite |
+| `numpy` | 1.23.5 | Normalização e reshape das imagens |
+| `os` | padrão Python | Manipulação de arquivos e cálculo de tamanho dos artefatos |
 
-### 3️⃣ Técnica de Otimização do Modelo
+---
 
-A técnica aplicada foi **Dynamic Range Quantization** durante a conversão para TensorFlow Lite.
+## 3️⃣ Técnica de Otimização
 
-Fluxo realizado no `optimize_model.py`:
+**Técnica aplicada:** Dynamic Range Quantization via `tf.lite.Optimize.DEFAULT`
 
-- carregamento do modelo treinado (`model.h5`)
-- conversão para `.tflite`
-- aplicação de otimização com `tf.lite.Optimize.DEFAULT`
+**Fluxo em `optimize_model.py`:**
 
-Escolhi essa técnica porque ela entrega boa compressão com implementação simples, sem aumentar demais a complexidade do pipeline. Para o objetivo de Edge AI, foi uma decisão equilibrada entre redução de tamanho e manutenção de desempenho.
+```
+model.h5  →  TFLiteConverter  →  Optimize.DEFAULT  →  model.tflite
+```
 
+**Por que essa técnica?**
 
+A Dynamic Range Quantization converte os pesos de `float32` para `int8` em tempo de conversão, sem necessidade de dados de calibração. Isso resulta em:
 
-### 4️⃣ Resultados Obtidos
+- Redução significativa de tamanho sem etapas adicionais de pipeline
+- Implementação simples, adequada para CI automatizado
+- Boa manutenção de acurácia para modelos como o MNIST
+- Viabilidade em microcontroladores e SBCs com memória limitada
 
-Resultados principais obtidos:
+---
 
-- Acurácia final no teste: **99.30%** (com apenas 5 épocas)
-- Artefato treinado: `model.h5` com **2.81 MB**
-- Artefato otimizado: `model.tflite` com **0.24 MB**
-- Redução de tamanho: **91.43%**
+## 4️⃣ Resultados
 
-Analisando os resultados, o modelo convergiu rápido e apresentou desempenho alto mesmo com poucas épocas, o que mostra boa adequação da arquitetura ao MNIST. O `Dropout(0.5)` ajudou a reduzir risco de overfitting, principalmente na parte densa da rede, mantendo boa generalização no teste.
+### Desempenho e Tamanho
 
-### Imagens dos Resultados do site netron.app
+| Artefato | Tamanho | Acurácia no Teste |
+|---|---|---|
+| `model.h5` (Keras) | 2,81 MB | **99,30%** |
+| `model.tflite` (quantizado) | 0,24 MB | ~99% |
+| **Redução de tamanho** | **91,43%** | — |
+
+> Treinado com **5 épocas**, apenas em **CPU**, sem GPU.
 
 <table>
   <tr>
@@ -382,28 +413,72 @@ visualizar as três camadas convolucionais, o bloco denso com Dropout e a camada
 de saída com 10 neurônios (softmax). No modelo `.tflite`, as operações aparecem 
 quantizadas, refletindo a aplicação do Dynamic Range Quantization.
 
-### 5️⃣ Comentários Adicionais (Opcional)
+### Análise dos Resultados
 
-- **Decisões técnicas importantes:** manter 3 blocos convolucionais foi uma escolha consciente para equilibrar capacidade de extração de características e eficiência computacional.
-- **Trade-off tamanho x desempenho:** uma rede mais profunda poderia aumentar custo de inferência e memória. A versão final manteve acurácia alta e ficou com cerca de 245 KB em `.tflite`, o que é adequado para dispositivos com memória limitada.
-- **Organização dos artefatos:** os arquivos `model.h5` (modelo treinado) e `model.tflite` (modelo otimizado) foram gerados de forma organizada na raiz do projeto, facilitando validação automática e reprodução dos testes.
-- **Aprendizado principal:** além de alcançar boa acurácia, foi importante pensar no ciclo completo de Edge AI (treino, salvamento, conversão e otimização) desde o início do desenvolvimento.
+- O modelo convergiu rapidamente — a acurácia de 99,30% com apenas 5 épocas indica boa adequação da arquitetura ao problema.
+- A redução de 91,43% no tamanho viabiliza o deploy em dispositivos com memória flash da ordem de **256 KB a 1 MB**, como ESP32-S3 ou Raspberry Pi.
+- O `Dropout(0.5)` demonstrou eficácia: não houve sinal de overfitting mesmo com rede de capacidade moderada.
 
+### Visualização da Arquitetura (Netron)
 
-### ⭐ Diferencial Implementado
+| Modelo Keras | Modelo TFLite |
+|---|---|
+| ![model.h5](assets/model.h5.png) | ![model.tflite](assets/model.tflite.png) |
 
-Além do fluxo obrigatório de treino e otimização, adicionei um script extra de inferência (`test_inference.py`) para demonstrar o uso prático do modelo TFLite.
+---
 
-Esse script:
+## ⭐ Diferencial: Script de Inferência
 
-- carrega o modelo `model.tflite`
-- seleciona uma imagem aleatória do MNIST
-- realiza a inferência e mostra a classe prevista
-- salva a imagem de teste como `inference_sample.png`
-- abre a imagem automaticamente no Windows para facilitar a visualização
+O script `test_inference.py` demonstra o uso prático do modelo TFLite em um fluxo de inferência real.
 
-Esse diferencial ajuda a mostrar não só que o modelo foi treinado e otimizado, mas também que ele pode ser usado de forma prática em um fluxo simples de demonstração.
+**O que ele faz:**
 
+1. Carrega o modelo `model.tflite` com o interpretador TFLite
+2. Seleciona uma imagem aleatória do conjunto de teste do MNIST
+3. Executa a inferência e exibe a classe prevista com a confiança
+4. Salva a imagem usada como `inference_sample.png`
+
+**Exemplo de saída:**
+
+```
+Dígito real:    7
+Previsto:       7
+Confiança:      99.8%
+Imagem salva em: inference_sample.png
+```
+
+Esse script valida que o modelo não apenas foi treinado e convertido corretamente, mas que é **funcional em um pipeline real de inferência**.
+
+---
+
+## 5️⃣ Trade-offs e Aprendizados
+
+**Trade-off tamanho × desempenho:**  
+Uma rede mais profunda poderia atingir 99,5%+ de acurácia, mas elevaria o custo de inferência e o uso de memória. A arquitetura final, com ~245 KB em `.tflite`, é adequada para dispositivos com restrições reais de hardware.
+
+**Aprendizado principal:**  
+O desafio reforçou a importância de pensar no **ciclo completo de Edge AI** desde o início — não basta treinar com alta acurácia; o modelo precisa ser viável para conversão, otimização e deploy em ambientes com recursos limitados.
+
+---
+
+## 📂 Estrutura do Projeto
+
+```plaintext
+repositorio/
+├── .github/workflows/ci.yml   # Pipeline de correção automática
+├── .devcontainer/             # Dev Container (opcional)
+├── train_model.py             # Etapa 1: treinamento da CNN
+├── optimize_model.py          # Etapa 2: conversão e quantização
+├── test_inference.py          # Diferencial: inferência com TFLite
+├── requirements.txt           # Dependências do projeto
+├── model.h5                   # Modelo treinado (gerado)
+├── model.tflite               # Modelo otimizado (gerado)
+├── inference_sample.png       # Imagem de teste (gerada)
+├── assets/
+│   ├── model.h5.png           # Visualização Netron – Keras
+│   └── model.tflite.png       # Visualização Netron – TFLite
+└── README.md                  # Este relatório
+```
 
 ## 🆘 Suporte
 
