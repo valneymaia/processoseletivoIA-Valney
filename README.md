@@ -384,18 +384,7 @@ A Dynamic Range Quantization converte os pesos de `float32` para `int8` em tempo
 - Viabilidade em microcontroladores e SBCs com memória limitada
 
 ---
-
-## 4️⃣ Resultados
-
-### Desempenho e Tamanho
-
-| Artefato | Tamanho | Acurácia no Teste |
-|---|---|---|
-| `model.h5` (Keras) | 2,81 MB | **99,30%** |
-| `model.tflite` (quantizado) | 0,24 MB | ~99% |
-| **Redução de tamanho** | **91,43%** | — |
-
-> Treinado com **5 épocas**, apenas em **CPU**, sem GPU.
+### Visualização da Arquitetura (Netron)
 
 <table>
   <tr>
@@ -408,22 +397,20 @@ A Dynamic Range Quantization converte os pesos de `float32` para `int8` em tempo
   </tr>
 </table>
 
-As imagens geradas pelo Netron confirmam a arquitetura implementada: é possível 
-visualizar as três camadas convolucionais, o bloco denso com Dropout e a camada 
+As imagens geradas pelo Netron confirmam a arquiteturda implementada: é possível 
+visualizar as três camadas convolucionais, o bloco enso com Dropout e a camada 
 de saída com 10 neurônios (softmax). No modelo `.tflite`, as operações aparecem 
 quantizadas, refletindo a aplicação do Dynamic Range Quantization.
+
+## 4️⃣ Resultados
+
+> Treinado com **5 épocas**, apenas em **CPU**, sem GPU.
 
 ### Análise dos Resultados
 
 - O modelo convergiu rapidamente — a acurácia de 99,30% com apenas 5 épocas indica boa adequação da arquitetura ao problema.
 - A redução de 91,43% no tamanho viabiliza o deploy em dispositivos com memória flash da ordem de **256 KB a 1 MB**, como ESP32-S3 ou Raspberry Pi.
 - O `Dropout(0.5)` demonstrou eficácia: não houve sinal de overfitting mesmo com rede de capacidade moderada.
-
-### Visualização da Arquitetura (Netron)
-
-| Modelo Keras | Modelo TFLite |
-|---|---|
-| ![model.h5](assets/model.h5.png) | ![model.tflite](assets/model.tflite.png) |
 
 ---
 
