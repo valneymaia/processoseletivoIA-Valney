@@ -7,22 +7,22 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_H5_PATH = BASE_DIR / "model.h5"
 
-# Carrega o dataset MNIST
+
 print("Carregando dataset MNIST...")
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 
-# Normaliza as imagens para valores entre 0 e 1
+
 x_train = x_train.astype("float32") / 255.0
 x_test = x_test.astype("float32") / 255.0
 
-# Redimensiona as imagens para adicionar canal (28, 28) -> (28, 28, 1)
+
 x_train = np.expand_dims(x_train, -1)
 x_test = np.expand_dims(x_test, -1)
 
 print(f"Dados de treinamento: {x_train.shape}")
 print(f"Dados de teste: {x_test.shape}")
 
-# Constrói o modelo CNN simples
+
 print("\nConstruindo modelo CNN...")
 model = keras.Sequential(
     [
@@ -50,14 +50,14 @@ model = keras.Sequential(
 print("Resumo do modelo:")
 model.summary()
 
-# Compila o modelo
+
 model.compile(
     optimizer="adam",
     loss="sparse_categorical_crossentropy",
     metrics=["accuracy"],
 )
 
-# Treina o modelo
+
 print("\nTreinando modelo...")
 batch_size = 128
 epochs = 5
@@ -71,12 +71,30 @@ history = model.fit(
     verbose=1,
 )
 
-# Avalia o modelo nos dados de teste
+
 print("\nAvaliando modelo nos dados de teste...")
 test_loss, test_accuracy = model.evaluate(x_test, y_test, verbose=0)
-print(f"Acurácia final no teste: {test_accuracy * 100:.2f}%")
+test_probabilities = model.predict(x_test, verbose=0)
+test_predictions = np.argmax(test_probabilities, axis=1)
 
-# Salva o modelo treinado
+f1_scores = []
+for class_id in range(10):
+    true_positive = np.sum((test_predictions == class_id) & (y_test == class_id))
+    false_positive = np.sum((test_predictions == class_id) & (y_test != class_id))
+    false_negative = np.sum((test_predictions != class_id) & (y_test == class_id))
+
+    precision = true_positive / (true_positive + false_positive) if (true_positive + false_positive) > 0 else 0.0
+    recall = true_positive / (true_positive + false_negative) if (true_positive + false_negative) > 0 else 0.0
+    f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
+    f1_scores.append(f1)
+
+f1_macro = float(np.mean(f1_scores))
+
+print(f"Loss final no teste: {test_loss:.4f}")
+print(f"Acurácia final no teste: {test_accuracy * 100:.2f}%")
+print(f"F1-score macro no teste: {f1_macro:.4f}")
+
+
 print("\nSalvando modelo treinado como model.h5...")
 model.save(MODEL_H5_PATH)
 print(f"Modelo salvo com sucesso em: {MODEL_H5_PATH}")

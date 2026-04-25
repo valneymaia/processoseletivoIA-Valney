@@ -397,20 +397,36 @@ A Dynamic Range Quantization converte os pesos de `float32` para `int8` em tempo
   </tr>
 </table>
 
-As imagens geradas pelo Netron confirmam a arquiteturda implementada: é possível 
-visualizar as três camadas convolucionais, o bloco enso com Dropout e a camada 
-de saída com 10 neurônios (softmax). No modelo `.tflite`, as operações aparecem 
-quantizadas, refletindo a aplicação do Dynamic Range Quantization.
+As imagens geradas pelo Netron ajudam a ver melhor como o modelo ficou montado.
+Dá para perceber as três camadas convolucionais, o bloco denso com Dropout e a
+camada final com 10 neurônios. No `.tflite`, aparece a parte quantizada depois da
+otimização, o que mostra que a conversão foi feita corretamente.
 
 ## 4️⃣ Resultados
 
 > Treinado com **5 épocas**, apenas em **CPU**, sem GPU.
 
+### Métricas de Avaliação
+
+| Métrica | Valor |
+|---|---| 
+| Loss final no teste | **0.0253** |
+| Acurácia final no teste | **99,10%** |
+| F1-score macro no teste | **0.9909** |
+
 ### Análise dos Resultados
 
-- O modelo convergiu rapidamente — a acurácia de 99,30% com apenas 5 épocas indica boa adequação da arquitetura ao problema.
-- A redução de 91,43% no tamanho viabiliza o deploy em dispositivos com memória flash da ordem de **256 KB a 1 MB**, como ESP32-S3 ou Raspberry Pi.
-- O `Dropout(0.5)` demonstrou eficácia: não houve sinal de overfitting mesmo com rede de capacidade moderada.
+- O modelo convergiu bem e chegou em 99,10% de acurácia com só 5 épocas, então a arquitetura escolhida funcionou bem para o MNIST.
+- O loss final ficou baixo, o que mostra que o modelo aprendeu de forma estável.
+- O F1-score macro de 0.9909 confirma que o desempenho ficou equilibrado nas 10 classes, e não só em algumas letras ou dígitos mais fáceis.
+- A redução de 91,43% no tamanho é importante porque deixa o modelo mais leve para usar em dispositivos com pouca memória, como ESP32-S3 ou Raspberry Pi.
+- O `Dropout(0.5)` ajudou a evitar overfitting, então o modelo ficou bom sem ficar exageradamente complexo.
+
+### O que este resultado mostra
+
+- A arquitetura ficou simples, mas ainda assim conseguiu um resultado muito bom.
+- Treinar por 5 épocas foi suficiente para chegar em um ponto bom de generalização.
+- Usar acurácia, loss e F1-score junto ajuda a ter uma visão mais completa do modelo.
 
 ---
 
@@ -434,7 +450,7 @@ Confiança:      99.8%
 Imagem salva em: inference_sample.png
 ```
 
-Esse script valida que o modelo não apenas foi treinado e convertido corretamente, mas que é **funcional em um pipeline real de inferência**.
+Esse script mostra na prática que o modelo não só foi treinado e convertido, mas também consegue ser usado de verdade em uma inferência simples.
 
 ---
 
@@ -444,7 +460,18 @@ Esse script valida que o modelo não apenas foi treinado e convertido corretamen
 Uma rede mais profunda poderia atingir 99,5%+ de acurácia, mas elevaria o custo de inferência e o uso de memória. A arquitetura final, com ~245 KB em `.tflite`, é adequada para dispositivos com restrições reais de hardware.
 
 **Aprendizado principal:**  
-O desafio reforçou a importância de pensar no **ciclo completo de Edge AI** desde o início — não basta treinar com alta acurácia; o modelo precisa ser viável para conversão, otimização e deploy em ambientes com recursos limitados.
+O desafio mostrou que não adianta só treinar bem. Também é preciso pensar no modelo final, no tamanho dele e em como ele vai funcionar depois da conversão para TFLite.
+
+**Aprendizados técnicos obtidos:**
+
+- Normalizar os dados e colocar o canal da imagem foi um passo simples, mas fez diferença no treino.
+- O `Dropout` ajudou bastante a segurar o overfitting sem deixar a rede complicada.
+- A quantização dinâmica foi uma boa escolha porque diminuiu bastante o tamanho do modelo sem derrubar muito o desempenho.
+- O F1-score foi útil porque, junto com a acurácia, dá uma noção melhor do resultado final.
+- Explicar os números e as escolhas técnicas deixa o projeto mais claro para quem for avaliar.
+
+**Conclusão prática:**  
+No fim, o projeto mostra todo o fluxo: treino, avaliação, salvamento, conversão, otimização e teste de inferência, que era justamente o objetivo do desafio.
 
 ---
 
